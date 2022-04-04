@@ -1,0 +1,7 @@
+default:
+  suites:
+    principal:
+      paths:
+        - '%paths.base%/features'
+      contexts:
+        - Tests\CobrancaContext

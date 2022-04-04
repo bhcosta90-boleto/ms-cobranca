@@ -1,0 +1,47 @@
+version: "3.3"
+
+services:
+  cobrancas:
+    image: bhcosta90/php:8.1-dev
+    security_opt:
+      - apparmor:unconfined
+    ports:
+      - "8081:80"
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - boleto_team
+
+  cobrancas_supervisor:
+    image: bhcosta90/php:8.1.cron
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - ./:/var/www/html
+      - ./supervisor:/etc/supervisor/conf.d/
+    networks:
+      - boleto_team
+
+  cobrancas_mariadb:
+    image: 'mariadb:10'
+    ports:
+        - '33061:3306'
+    environment:
+        MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+        MYSQL_DATABASE: '${DB_DATABASE}'
+        MYSQL_USER: '${DB_USERNAME}'
+        MYSQL_PASSWORD: '${DB_PASSWORD}'
+        MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+        - './vendor/data/mariadb:/var/lib/mysql'
+    networks:
+        - boleto_team
+    healthcheck:
+        test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
+        retries: 3
+        timeout: 5s
+
+networks:
+  boleto_team:
+    external:
+      name: boleto_team
